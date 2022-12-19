@@ -1,0 +1,84 @@
+{% extends 'core/base.html' %}
+
+{% load static %}
+
+
+{% block content %}
+<link href="{% static 'news/css/news.css' %}" type="text/css" rel="stylesheet" media="all">
+<nav class="navbar navbar-expand-lg navbar-down bg-light">
+    <div class="container-fluid">
+        <button class="navbar-toggler ml-md-auto" type="button"
+                data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false"
+                aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+
+                {% for i in categories %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'news:news_in_category' i.slug %}">
+                            {{ i.title }}
+                        </a>
+                    </li>
+                {% endfor %}
+
+            </ul>
+        </div>
+    </div>
+</nav>
+
+{% for i in news %}
+    <div class="new">
+        <a class="cat_item" href="{% url 'news:news_in_category' i.category.slug %}">
+            {{ i.category }}
+        </a>
+        <a class="n1" href="{% url 'news:news_items' i.pk %}">
+            <div class="news_table">
+                <img class="card-img-top"
+                     src="{{MEDIA_URL}}{{i.main_image.url}}" height="200px"
+                     width="377px" alt="..." />
+                <h3>{{ i.title }}</h3></br>
+            </div>
+        </a>
+    </div>
+{% endfor %}
+
+{% for i in categories %}
+    {% if i.News.all.count > 0 %}
+        <nav class="navbar navbar-expand-lg navbar-down bg-light">
+            <div class="container-fluid">
+                <div class="">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'news:news_in_category' i.slug %}">
+                                {{ i.title }}
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        {% for g in i.News.all|slice:":4" %}
+            <div class="new">
+                <a  class="comment_counter"
+                    href=" {% url 'news:news_items' g.pk %}#discussion ">
+                    <img class="comment_img" src="{% static 'news/images/comments.png' %}" alt="..."/>
+                    <div class="comment_digit">{{ g.Comments.all.count }}</div>
+                </a>
+                <a class="n1" href="{% url 'news:news_items' g.pk %}">
+                    <div class="news_table">
+                        <img class="card-img-top"
+                             src="{{MEDIA_URL}}{{g.main_image.url}}"
+                             height="200px" width="377px" alt="..." />
+                        <h3>{{ g.title }}</h3></br>
+                    </div>
+                </a>
+            </div>
+        {% endfor %}
+
+    {% endif %}
+{% endfor %}
+{% endblock content %}

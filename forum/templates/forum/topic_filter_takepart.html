@@ -1,0 +1,39 @@
+{% extends 'core/base.html' %}
+
+{% load static %}
+
+{% block content %}
+
+<a href="{% url 'forum:category_list' %}" style="margin-left: 15%"> Вернуться на главную форума </a>
+<h2 style="margin-right: 15%; margin-left: 15%; margin-bottom: 20px">Мои посты </h2>
+<h4 style="margin-right: 15%; margin-left: 15%; margin-bottom: 20px; color: #1b6d85">
+   (найдено {{take_part_topics.count}} Пост(ов)) </br>
+</h4>
+
+
+<table bgcolor="#add8e6" ; border="1"; bordercolor="#d3d3d3"; cellpadding="5"; cellspacing="2"; width="70%" style="margin-left: 15%; margin-right: 15%">
+    <tr>
+        <td width="100%" style="text-align: center">
+        </td>
+    </tr>
+</table>
+<table bgcolor="#f0f8ff" ; border="1"; bordercolor="#f0f8ff"; cellpadding="10"; cellspacing="2"; width="70%" style="margin-left: 15%; margin-right: 15%">
+
+    {% for take_part_topic in take_part_topics %}
+    <tr>
+        <td width="60%">
+            <a href="{% url 'forum:topic_detail' take_part_topic.pk %}" style="color: #18397c">{{take_part_topic}}</a>
+            <hr style="margin: 0">
+        </td>
+        <td width="20%" style="font-size: 0.75em"> </td>
+        <td width="20%" style="font-size: 0.75em"; align="right"> {{take_part_topic.posts.count}} </td>
+    </tr>
+    {% empty %}
+    <p style="margin-left: 15%">
+        По вашему запросу ничего не найдено
+    </p>
+    {% endfor %}
+</table>
+
+{% endblock content %}
+

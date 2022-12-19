@@ -1,0 +1,76 @@
+{% extends 'core/base.html' %}
+
+{% load static %}
+
+{% block content %}
+
+<div style="margin-left: 15%; margin-right: 15%">
+        <table width="100%"; cellpadding="10"; cellspacing="0" >
+        <tr>
+            <td width="100%" height="40" bgcolor="#f0f8ff" >
+                <a href="{% url 'forum:topic_filter_new' %}">
+                    Новое за последние 24 часа
+                </a>
+                &nbsp;&nbsp;&nbsp;&nbsp;
+                {% if user.is_authenticated %}
+                {% csrf_token %}
+                <a href="{% url 'forum:topic_filter_takepart' %}">
+                    Мои посты
+                </a>
+                {% endif %}
+            </td>
+        </table>
+</div>
+
+<div
+        style="font-size: 18px; margin-left: 15%; margin-right: 15%" xmlns:>
+    <h2 style="
+    margin: 20px">Форум</h2>
+
+    <div>
+        <table width="100%"; cellpadding="10"; cellspacing="0">
+        <tr>
+            <td width="80%" height="40" bgcolor="#add8e6"><b> Важное </b></td>
+        </tr>
+            <tr>
+                <td width="100%">
+                    <br>
+                    {% for main_topic in main_topics %}
+                    <a href="{% url 'forum:topic_detail' main_topic.pk %}" style="color: orange"> {{main_topic}} </a>
+                    <h8 style="font-size: 0.75em"> {{main_topic.posts.count}} сообщений </h8></br><br>
+                    {% endfor %}
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div>
+        <table width="100%" bgcolor="#f0f8ff" ; border="1"; bordercolor="#f0f8ff"; cellpadding="10"; cellspacing="2">
+        {% for category in categories %}
+            <tr>
+                <td width="80%" bgcolor="#add8e6"> <b>{{category.title}}</b></td>
+                <td width="20%" bgcolor="#add8e6" style="font-size: 0.75em; text-align: right"> <b>Темы</b>
+                </td>
+            </tr>
+            {% for category_detail in category.children.all %}
+                <tr>
+                    <td width="80%">
+                        <a href="{% url 'forum:topic_list' category_detail.pk %}" style="color: #18397c">
+                            {{category_detail}}
+                        </a></br>
+                        <p style="font-size: 0.75em">
+                            {{category_detail.description}}
+                        </p>
+                         <hr style="margin: 0">
+                    </td>
+                    <td width="20%" style="font-size: 0.75em; text-align: right"> <b>{{category_detail.topics.count}}</b>
+                    </td>
+                </tr>
+            {% endfor %}
+        {% endfor %}
+
+        </table>
+    </div>
+</div>
+
+{% endblock content %}

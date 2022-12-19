@@ -1,0 +1,40 @@
+{% extends 'core/base.html' %}
+
+{% load static %}
+
+{% block content %}
+
+<a href="{% url 'forum:category_list' %}" style="margin-left: 15%"> Вернуться на главную форума </a>
+<h2 style="margin-right: 15%; margin-left: 15%; margin-bottom: 20px">Новое за 24 часа</h2>
+<h4 style="margin-right: 15%; margin-left: 15%; margin-bottom: 20px; color: #1b6d85">
+   (найдено {{new_topics.count}} тем(ы)) </br>
+</h4>
+
+
+<table bgcolor="#add8e6" ; border="1"; bordercolor="#d3d3d3"; cellpadding="5"; cellspacing="2"; width="70%" style="margin-left: 15%; margin-right: 15%">
+    <tr>
+        <td width="100%" style="text-align: center">
+<!--        paginator-->
+        </td>
+    </tr>
+</table>
+<table bgcolor="#f0f8ff" ; border="1"; bordercolor="#f0f8ff"; cellpadding="10"; cellspacing="2"; width="70%" style="margin-left: 15%; margin-right: 15%">
+
+    {% for new_topic in new_topics %}
+    <tr>
+        <td width="60%">
+            <a href="{% url 'forum:topic_detail' new_topic.pk %}" style="color: #18397c">{{new_topic}}</a>
+            <hr style="margin: 0">
+        </td>
+        <td width="20%" style="font-size: 0.75em"> </td>
+        <td width="20%" style="font-size: 0.75em"; align="right"> {{new_topic.posts.count}} </td>
+    </tr>
+    {% empty %}
+    <p style="margin-left: 15%">
+        Ничего пока нет
+    </p>
+    {% endfor %}
+</table>
+
+{% endblock content %}
+

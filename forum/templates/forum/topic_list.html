@@ -1,0 +1,81 @@
+{% extends 'core/base.html' %}
+
+{% load static %}
+{% block content %}
+
+
+<a href="{% url 'forum:category_list' %}" style="margin-left: 15%"> Вернуться на главную форума </a>
+<h2 style="margin-right: 15%; margin-left: 15%; margin-bottom: 20px">{{parent_topic.detail_title}}</h2>
+
+
+<table bgcolor="#add8e6" ; border="1"; bordercolor="#d3d3d3"; cellpadding="5"; cellspacing="2"; width="70%" style="margin-left: 15%; margin-right: 15%">
+    <tr>
+        <td width="20%"><p> Всего {{counter_topics}} тем(ы) </p></td>
+        <td width="60%" style="text-align: center">
+            <nav aria-label="..." style="margin-left: 15%">
+                <ul class="pagination">
+                  <li class="page-item">
+                      {% if page.has_previous %}
+                      <a class="page-link" href="{% url 'forum:topic_list' detail_pk=parent_topic.pk %}?page={{ page.previous_page_number }}" tabindex="-1">Предыдущая</a>
+                      {% endif %}
+                  </li>
+                  {% for n in page.paginator.page_range %}
+                  {% if page.number == n %}
+                      <li class="page-item active">
+                          <a class="page-link" href="{% url 'forum:topic_list' detail_pk=parent_topic.pk %}?page={{ n }}">{{n}}<span class="sr-only">(current)</span></a>
+                      </li>
+                  {% elif n > page.number|add:-3 and n < page.number|add:3 %}
+                      <li class="page-item">
+                          <a class="page-link" href="{% url 'forum:topic_list' detail_pk=parent_topic.pk %}?page={{ n }}">{{n}}</a>
+                      </li>
+                  {% endif %}
+                  {% endfor %}
+                  {% if page.has_next %}
+                <li class="page-item">
+                  <a class="page-link" href="{% url 'forum:topic_list' detail_pk=parent_topic.pk %}?page={{ page.next_page_number }}">Следующая</a>
+                </li>
+                  {% endif %}
+                </ul>
+            </nav>
+        </td>
+        <td width="20%"> <p style="text-align: right">Сообщений</p> </td>
+    </tr>
+</table>
+<table bgcolor="#f0f8ff" ; border="1"; bordercolor="#f0f8ff"; cellpadding="10"; cellspacing="2"; width="70%" style="margin-left: 15%; margin-right: 15%">
+    {% for topic in page.object_list %}
+    <tr>
+        <td width="60%">
+            <a href="{% url 'forum:topic_detail' topic.pk %}" style="color: #18397c">{{topic.title}}</a>
+        </td>
+        <td width="20%" style="font-size: 0.75em"> </br></td>
+        <td width="20%" style="font-size: 0.75em"; align="right"> {{topic.posts.count}} </td>
+    </tr>
+{% empty %}
+    <p style="margin-left: 15%">Здесь пока никто ничего не обсуждал - предложите свою тему для обсуждения</p>
+{% endfor %}
+</table>
+
+
+<table bgcolor="#ffe4c4" ; cellpadding="5"; cellspacing="2"; width="70%" style="margin-left: 15%; margin-right: 15%">
+    <tr>
+        <td style="text-align: left">
+            <b style="color: red">Новая тема</b>
+        </td>
+    </tr>
+</table>
+<table bgcolor="#fffacd" ; border="1"; bordercolor="#f0f8ff"; cellpadding="10"; cellspacing="2"; width="70%" style="margin-left: 15%; margin-right: 15%">
+    <tr>
+        <td width="20%">
+            {{post.author}}</br>
+            {{post.author.image}}
+        </td>
+        <td width="80%">
+            <form action="" method="POST"> {% csrf_token %}
+            {{ topic_form.as_p }}
+            <button type="submit" class="btn btn-warning">Отправить</button>
+            </form>
+        </td>
+    </tr>
+</table>
+
+{% endblock content %}

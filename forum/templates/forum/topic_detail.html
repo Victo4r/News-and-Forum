@@ -1,0 +1,104 @@
+{% extends 'core/base.html' %}
+
+{% load static %}
+{% block content %}
+<h2 style="margin-left: 15%; margin-right: 15%">
+    {{topic.title}}</h2></br>
+
+<a href="{% url 'forum:category_list' %}" style="margin-left: 15%"> Вернуться на главную форума </a>
+<br>
+<table bgcolor="#add8e6" ; cellpadding="10"; cellspacing="1"; width="70%" style="margin-left: 15%; margin-right: 15%">
+    <tr>
+        <td width="20%">
+            {% if user.is_authenticated %}
+            {% csrf_token %}
+            <button class="btn btn-warning"><a href="#post">Ответить</a></button>
+            {% else %}
+            <button class="btn btn-warning"><a href="{% url 'users:login' %}">Ответить</a></button>
+            {% endif %}
+        </td>
+
+        <td width="60%">
+<nav aria-label="..." style="margin-left: 15%">
+  <ul class="pagination">
+
+      <li class="page-item">
+          {% if page.has_previous %}
+          <a class="page-link" href="{% url 'forum:topic_detail' topic_pk=topic.pk %}?page={{ page.previous_page_number }}" tabindex="-1">Предыдущая</a>
+          {% endif %}
+      </li>
+
+      {% for n in page.paginator.page_range %}
+      {% if page.number == n %}
+          <li class="page-item active">
+              <a class="page-link" href="{% url 'forum:topic_detail' topic_pk=topic.pk %}?page={{ n }}">{{n}}<span class="sr-only">(current)</span></a>
+          </li>
+      {% elif n > page.number|add:-3 and n < page.number|add:3 %}
+          <li class="page-item">
+              <a class="page-link" href="{% url 'forum:topic_detail' topic_pk=topic.pk %}?page={{ n }}">{{n}}</a>
+          </li>
+      {% endif %}
+      {% endfor %}
+      {% if page.has_next %}
+    <li class="page-item">
+      <a class="page-link" href="{% url 'forum:topic_detail' topic_pk=topic.pk %}?page={{ page.next_page_number }}">Следующая</a>
+    </li>
+      {% endif %}
+  </ul>
+</nav>
+        </td>
+        <td width="20%" style="text-align: right">
+            Всего {{counter}} сообщений
+        </td>
+    </tr>
+</table>
+<table bgcolor="#f0f8ff" ; border="1"; bordercolor="white"; cellpadding="10"; cellspacing="2"; width="70%" style="margin-left: 15%; margin-right: 15%">
+    {% for post in page.object_list %}
+    <tr>
+        <td width="20%">
+            {{post.author}}</br>
+            <img width="100" height="100"
+                     src="{% if post.author.image %} {{ post.author.image.url }} {% else %} {% static 'img/users/default_avatar.jpg' %} {% endif %}"
+                     class="img-thumbnail">
+        </td>
+        <td width="60%"><a name="post"></a>
+            <p style="color: #4e555b; font-size: 0.75em"> <b style="color: red">#</b> {{post.published}}</p></br>
+            {{post.text|safe}}
+             <hr style="margin: 0">
+        </td>
+        <td width="20%">
+            <a href="{% url 'forum:complain' post.pk %}" style="margin-left: 15%; font-size: 0.75em" onclick=""> Пожаловаться </p></a>
+        </td>
+    </tr>
+    {% empty %}
+    <p style="margin-left: 15%">Здесь пока что ничего нету - задайте свой вопрос</p>
+    {% endfor %}
+</table>
+
+{% if user.is_authenticated %}
+{% csrf_token %}
+
+
+<table bgcolor="#fffacd" ; border="1"; bordercolor="white"; cellpadding="10"; cellspacing="2"; width="70%" style="margin-left: 15%; margin-right: 15%">
+    <tr>
+        <td width="20%">
+            <h5>{{user.username}}</h5>
+            </br>
+           <img width="100" height="100"
+                     src="{% if user.image %} {{ user.image.url }} {% else %} {% static 'img/users/default_avatar.jpg' %} {% endif %}"
+                     class="img-thumbnail">
+        </td>
+        <td width="60%">
+            <p style="color: #4e555b; font-size: 0.75em"> # {{post.published}}</p></br>
+            <form action="" method="POST">
+                {% csrf_token %}
+                {{ post_form.as_p }}
+            <button type="submit" class="btn btn-warning">Добавить сообщение</button>
+        </form>
+        </td>
+        <td width="20%"></td>
+    </tr>
+</table>
+{% endif %}
+
+{% endblock content %}

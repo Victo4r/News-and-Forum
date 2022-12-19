@@ -1,0 +1,28 @@
+{% extends 'core/base.html' %}
+
+{% load static %}
+{% block content %}
+
+{% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+    <b><li style="margin-right: 15%; margin-left: 15%; color: red" {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li></b>
+    {% endfor %}
+</ul>
+{% endif %}
+
+<h2 style="margin-left: 15%">
+    Пожаловаться
+</h2>
+<p style="margin-left: 15%; margin-right: 15%"> Текст сообщения форума:</p></br>
+<p style="margin-right: 15%; margin-left: 15%"> {{post.text}} </p>
+
+<form style="margin-left: 15%; margin-right: 15%" method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary btn-block">
+        Отправить
+    </button>
+</form>
+
+{% endblock content %}

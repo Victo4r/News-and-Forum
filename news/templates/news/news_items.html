@@ -1,0 +1,291 @@
+{% extends 'core/base.html' %}
+
+{% load static %}
+
+
+{% block content %}
+
+<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+<link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
+
+<meta name="twitter:dnt" content="on" xmlns="http://www.w3.org/1999/html">
+<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+<link href="{% static 'news/css/news.css' %}" type="text/css" rel="stylesheet" media="all">
+
+<nav class="navbar navbar-expand-lg navbar-down bg-light">
+    <div class="container-fluid">
+        <button class="navbar-toggler ml-md-auto" type="button"
+                data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false"
+                aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <a class="nav-link" href="{% url 'news:news_list'  %}">
+                    Вернуться
+                </a>
+
+                {% for i in categories %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'news:news_in_category' i.slug %}">
+                            {{ i.title }}
+                        </a>
+                {% endfor %}
+
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<br>
+
+<div class="news_page_item">
+    <h2 style="text-align: center;">{{ items.title }}</h2></br>
+    {{ items.text|safe }}</br>
+    <div style="background-color: white;">
+        <!-- Comment with nested comments -->
+        <a name="log"></a>
+
+        <h2 id="discussion">ОБСУЖДЕНИЕ</h2>
+        <br>
+        <div style="margin-right: 540px;">
+            <div class="comment_divider"></div>
+
+                {% if best_comment is not None %}
+                    {% if best_comment.author.image %}
+                       <img src="{{MEDIA_URL}}{{ best_comment.author.image.url }}" alt="..." class="prof_pic"/>
+                    {% else %}
+                        <img src="{% static 'img/users/default_avatar.jpg' %}" alt="..." class="prof_pic"/>
+                    {% endif %}
+                    <div class="best_comment">
+                        <div class="like_or_dislike">
+                            <img class="dislike" src="{% static 'news/images/Dislike.png' %}" alt="..."/>
+                            <p class="dislike_counter">{{ best_comment.comment_dislike }}</p>
+                            <img class="like" src="{% static 'news/images/Like.png' %}" alt="..."/>
+                            <p class="like_counter">{{ best_comment.comment_like }}</p>
+                        </div>
+                        <p class="info" style="margin-bottom: 0;">{{ best_comment.author }}</p>
+                        <p class="info" style="margin-bottom: 0;">{{ best_comment.text|safe }}</p>
+                        <p style="font-size: 14px; margin-bottom: 1;"> {{ best_comment.created_date }}</p>
+                        <div>
+                            <img class="best_com_img"
+                                 src="{% static 'img/icons/Best.png' %}"
+                                 alt="..."/>
+                            <h6 class="best_com">Лучший комментарий</h6>
+                        </div>
+                    </div>
+                {% endif %}
+            <div class="comment_divider"></div>
+            {% if user.is_authenticated %}
+                {% csrf_token %}
+
+
+                    <div class="comment-form" id="comment-form">
+                        <div class="reply-form-wrap">
+                            <form action="." method="post" style="display: flex; width: 100%">
+                                {% csrf_token %}
+                                <textarea class="summernote" name="text" cols="21" rows="4" required="" id="first_summernote"></textarea>
+                                <style>
+                                    iframe.note-fullscreen {
+                                        position: fixed;
+                                        top: 0;
+                                        left: 0;
+                                        width: 100vw!important;
+                                        height: 100vh!important;
+                                        z-index: 4000;
+                                    }
+                                </style>
+                                <div style="padding-left: 10px;">
+                                    <input class="btn btn-primary" type="submit" value="Высказаться">
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+
+            {% else %}
+                <p>
+                    Чтобы оставить свое мнение, необходимо
+                    <a href="{% url 'users:login' %}">войти</a> или
+                    <a href="{% url 'users:register' %}">зарегистрироваться</a>
+                </p>
+            {% endif %}
+            </br>
+
+            {% for comment in comments %}
+
+                {% if comment.parent is None %}
+                    {% if comment.author.image %}
+                        <img src="{{MEDIA_URL}}{{ comment.author.image.url }}" alt="..." class="prof_pic"/>
+                    {% else %}
+                        <img src="{% static 'img/users/default_avatar.jpg' %}" alt="..." class="prof_pic"/>
+
+                    {% endif %}
+                    <div  class="comment">
+                        {% if user.is_authenticated %}
+                            <div class="like_or_dislike">
+                                <a href="{% url 'news:like_or_dislike' news_pk=items.pk comment_pk=comment.pk vote='dislike' %}">
+                                    <img class="dislike" src="{% static 'news/images/Dislike.png' %}" alt="..."/>
+                                <p class="dislike_counter">{{ comment.comment_dislike }}</p>
+                                </a>
+                                <a href="{% url 'news:like_or_dislike' news_pk=items.pk comment_pk=comment.pk vote='like' %}">
+                                    <img class="like" src="{% static 'news/images/Like.png' %}" alt="..."/>
+                                <p class="like_counter">{{ comment.comment_like }}</p>
+                                </a>
+                            </div>
+                        {% else %}
+                            <div class="like_or_dislike">
+                                <a href="#log">
+                                    <img class="dislike" src="{% static 'news/images/Dislike.png' %}" alt="..."/>
+                                    <p class="dislike_counter">{{ comment.comment_dislike }}</p>
+                                </a>
+                                <a href="#log">
+                                    <img class="like" src="{% static 'news/images/Like.png' %}" alt="..."/>
+                                    <p class="like_counter">{{ comment.comment_like }}</p>
+                                </a>
+                            </div>
+                        {% endif %}
+
+                        <p class="info" style="margin-bottom: 0;">{{ comment.author }}</p>
+                        <p class="info" style="margin-bottom: 0;">{{ comment.text|safe }}</p>
+                        <p style="font-size: 14px; margin-bottom: 1;">{{ comment.created_date }}</p>
+
+                        {% if user.is_authenticated %}
+
+                            <a class="reply" href="#reply '{{ comment.id }}'">
+                                <input class="btn btn-primary"
+                                        style="margin-left: 600px; margin-top: -35px; position:absolute;" type="button" value="Ответить" onmousedown="viewRDiv({{ comment.id }})">
+                            </a>
+                        {% else %}
+                            <a class="reply" href="#log">Ответить</a>
+                        {% endif %}
+
+                    </div>
+                {% endif %}
+
+                <a name="reply '{{ comment.id }}'"></a>
+
+                {% for replay in comment.Replies.all %}
+                    <div style="margin-left: 82px;">
+
+                    {% if replay.author.image %}
+                         <img src="{{MEDIA_URL}}{{ replay.author.image.url }}" alt="..." class="prof_pic"/>
+                    {% else %}
+                        <img src="{% static 'img/users/default_avatar.jpg' %}" alt="..." class="prof_pic"/>
+
+                    {% endif %}
+                        <div class="comment">
+
+                            {% if user.is_authenticated %}
+                                <div class="like_or_dislike_reply">
+                                    <a href="{% url 'news:like_or_dislike' news_pk=items.pk comment_pk=replay.pk vote='dislike' %}">
+                                        <img class="dislike" src="{% static 'news/images/Dislike.png' %}" alt="..."/>
+                                        <p class="dislike_counter">{{ replay.comment_dislike }}</p>
+                                    </a>
+                                    <a href="{% url 'news:like_or_dislike' news_pk=items.pk comment_pk=replay.pk vote='like' %}">
+                                        <img class="like" src="{% static 'news/images/Like.png' %}" alt="..."/>
+                                        <p class="like_counter">{{ replay.comment_like }}</p>
+                                    </a>
+                                </div>
+                            {% else %}
+                                <div class="like_or_dislike_reply">
+                                    <a href="#log">
+                                        <img class="dislike" src="{% static 'news/images/Dislike.png' %}" alt="..."/>
+                                        <p class="dislike_counter">{{ replay.comment_dislike }}</p>
+                                    </a>
+                                    <a href="#log">
+                                        <img class="like" src="{% static 'news/images/Like.png' %}" alt="..."/>
+                                        <p class="like_counter">{{ replay.comment_like }}</p>
+                                    </a>
+                                </div>
+                            {% endif  %}
+
+                            <p class="info" style="margin-bottom: 0;">{{ replay.author}}</p>
+                            <p class="info" style="margin-bottom: 0;">{{ replay.text|safe }}</p>
+                            <p style="margin-bottom: 0; font-size: 14px;">{{ replay.created_date }}</p>
+                        </div>
+                    </div>
+                    </br>
+
+                {% endfor %}
+
+                {% if comment.parent is None %}
+
+                    {% if user.is_authenticated %}
+                        {% csrf_token %}
+
+                            <div class="reply-form" style="display: none;" id="{{ comment.id }}">
+                                <div class="reply-form-wrap">
+                                    <form action="." method="post" style="display: flex; width: 100%">
+                                        {% csrf_token %}
+                                        <textarea class="summernote" name="text" cols="21" rows="4" required="" id="summernote"></textarea>
+                                        <style>
+                                            iframe.note-fullscreen {
+                                                position: fixed;
+                                                top: 0;
+                                                left: 0;
+                                                width: 100vw!important;
+                                                height: 100vh!important;
+                                                z-index: 4000;
+                                            }
+                                        </style>
+                                        <input type="hidden" name="parent_id" value="{{ comment.id }}">
+                                        <div style="padding-left: 10px;">
+                                            <input class="btn btn-primary" type="submit" value="Высказаться">
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                    {% endif %}
+
+                {% endif %}
+
+                {% empty %}
+                <h4>В разделе "комментарии" пока что пусто</h4>
+
+            {% endfor %}
+
+        </div>
+        </br>
+    </div>
+</div>
+<script>
+
+    function viewRDiv(a){
+        document.getElementById(a).style.display = "block";
+    };
+
+  $('#first_summernote').summernote({
+    placeholder: 'Hello stand alone ui',
+    tabsize: 2,
+    width: 654,
+    height: 100,
+    toolbar: [
+      ['font', ['bold', 'underline','italic', 'clear']],
+      ['para', ['ul', 'ol', 'paragraph']]
+    ]
+  });
+
+    $('.summernote').each(function(i, obj) {
+        i++;
+        $(obj).summernote({
+          tabsize: 2,
+          width: 620,
+          height: 100,
+          toolbar: [
+              ['font', ['bold', 'underline','italic', 'clear']],
+              ['para', ['ul', 'ol', 'paragraph']],
+          ],
+          onChange: function() {
+              $("#stage_"+i).val($("#description_"+i).code());
+              //alert(i);
+          }
+        });
+    });
+
+</script>
+
+{% endblock %}
